@@ -8,19 +8,42 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const user_role = document.getElementById("user-role-select").value;
         const request_type = document.getElementById("request-type").value;
+        const disaster_type = document.getElementById("disaster-type").value; // Get disaster type
         const location = document.getElementById("help-location").value;
 
-        console.log("📤 Sending Help Request:", { user_role, request_type, location });
+        console.log("📤 Sending Help Request:", { user_role, request_type, disaster_type, location });
 
         fetch("http://localhost:8080/request-help", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ user_role, request_type, location })
+            body: JSON.stringify({ user_role, request_type, disaster_type, location }) // Include disaster_type
         })
         .then(response => response.json())
         .then(data => {
             console.log("✅ Response from Server:", data);
             alert(data.message);
+
+            // Set the phone number based on the request type
+            let phoneNumber = "";
+            switch (request_type) {
+                case "Food":
+                    phoneNumber = "+918767962815"; // Replace with the actual number for food requests
+                    break;
+                case "Shelter":
+                    phoneNumber = "+919876543210"; // Replace with the actual number for shelter requests
+                    break;
+                case "Medical":
+                    phoneNumber = "+911122334455"; // Replace with the actual number for medical requests
+                    break;
+                default:
+                    phoneNumber = "+911234567890"; // Default number
+            }
+
+            // Update the Call Button's href and make it visible
+            const callButton = document.getElementById("call-button");
+            callButton.href = `tel:${phoneNumber}`;
+            callButton.style.display = "block"; // Make the button visible
+
             fetchHelpCount();
             fetchHelpRequests(); // Refresh the table after submitting a new request
         })
@@ -52,7 +75,7 @@ function fetchHelpRequests() {
 
             if (data.length === 0) {
                 // If no data, show a message
-                tableBody.innerHTML = `<tr><td colspan="5">No help requests found.</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="6">No help requests found.</td></tr>`;
             } else {
                 // Populate the table with data
                 data.forEach(request => {
@@ -61,6 +84,7 @@ function fetchHelpRequests() {
                         <td>${request.id}</td>
                         <td>${request.user_role}</td>
                         <td>${request.request_type}</td>
+                        <td>${request.disaster_type}</td> <!-- Add disaster type -->
                         <td>${request.location}</td>
                         <td>${new Date(request.created_at).toLocaleString()}</td>
                     `;
@@ -71,6 +95,6 @@ function fetchHelpRequests() {
         .catch(error => {
             console.error("❌ Error fetching help requests:", error);
             const tableBody = document.getElementById("help-requests-table-body");
-            tableBody.innerHTML = `<tr><td colspan="5">Error loading data. Please try again.</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="6">Error loading data. Please try again.</td></tr>`;
         });
 }

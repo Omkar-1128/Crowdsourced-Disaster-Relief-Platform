@@ -26,9 +26,9 @@ async function getCoordinates(location) {
 // Handle new help requests
 router.post('/request-help', async (req, res) => {
     console.log("📩 Help Request Received:", req.body);
-    const { user_role, request_type, location } = req.body;
+    const { user_role, request_type, disaster_type, location } = req.body;
 
-    if (!user_role || !request_type || !location) {
+    if (!user_role || !request_type || !disaster_type || !location) {
         return res.status(400).json({ message: "All fields are required." });
     }
 
@@ -36,8 +36,8 @@ router.post('/request-help', async (req, res) => {
     const { lat, lng } = await getCoordinates(location);
 
     // Insert into database
-    const query = "INSERT INTO help_requests (user_role, request_type, location, lat, lng) VALUES (?, ?, ?, ?, ?)";
-    db.query(query, [user_role, request_type, location, lat, lng], (err, result) => {
+    const query = "INSERT INTO help_requests (user_role, request_type, disaster_type, location, lat, lng) VALUES (?, ?, ?, ?, ?, ?)";
+    db.query(query, [user_role, request_type, disaster_type, location, lat, lng], (err, result) => {
         if (err) {
             console.error("❌ Error inserting request:", err);
             return res.status(500).json({ message: "Server error", error: err });
@@ -51,7 +51,7 @@ router.post('/request-help', async (req, res) => {
 router.get('/all-help-requests', (req, res) => {
     console.log("📊 Fetching all help requests...");
 
-    db.query("SELECT id, user_role, request_type, location, lat, lng, created_at FROM help_requests ORDER BY created_at DESC", 
+    db.query("SELECT id, user_role, request_type, disaster_type, location, lat, lng, created_at FROM help_requests ORDER BY created_at DESC", 
     (err, result) => {
         if (err) {
             console.error("❌ Error fetching help requests:", err);

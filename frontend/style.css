@@ -44,6 +44,26 @@ button:hover {
     background: #218838;
 }
 
+/* Call Button Styling */
+#call-button {
+    padding: 10px;
+    margin: 5px;
+    border: none;
+    border-radius: 5px;
+    background: #007bff;
+    color: white;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s ease;
+    display: none; /* Initially hidden */
+}
+
+#call-button:hover {
+    background: #0056b3;
+}
+
 /* Form Styling */
 form {
     display: flex;
