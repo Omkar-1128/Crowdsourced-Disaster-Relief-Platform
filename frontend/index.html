@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disaster Relief Platform</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+</head>
+<body>
+    <header>
+        <h1>Disaster Relief Platform</h1>
+        <p>Help Requests: <span id="help-count">Loading...</span></p>
+    </header>
+
+    <section id="live-map">
+        <h2>Live Disaster Map</h2>
+        <div id="map"></div>
+    </section>
+
+    <section id="help-requests">
+        <h2>Request Help</h2>
+        <form id="help-form">
+            <select id="user-role-select">
+                <option value="Victim">Victim</option>
+                <option value="Volunteer">Volunteer</option>
+            </select>
+            <select id="request-type">
+                <option value="Food">Food</option>
+                <option value="Shelter">Shelter</option>
+                <option value="Medical">Medical</option>
+            </select>
+            <input type="text" id="help-location" placeholder="Enter Location" required>
+            <button type="submit">Request Help</button>
+        </form>
+    </section>
+
+    <section id="alerts">
+        <h2>Emergency Alerts - Help Requests</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>User Role</th>
+                    <th>Request Type</th>
+                    <th>Location</th>
+                    <th>Time</th>
+                </tr>
+            </thead>
+            <tbody id="help-requests-table-body">
+                <tr>
+                    <td colspan="5">Loading...</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="script.js"></script>
+    <script src="map.js"></script>
+</body>
+</html>
