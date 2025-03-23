@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const routes = require('./routes');
+const bcrypt = require('bcrypt'); // For password hashing
+const jwt = require('jsonwebtoken'); // For authentication tokens
 require('dotenv').config();
 
 const app = express();

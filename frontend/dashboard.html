@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Disaster Relief Platform</title>
+    <link rel="stylesheet" href="../frontend/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+</head>
+<body>
+    <header>
+        <h1>Dashboard</h1>
+        <p>Welcome, <span id="user-name"></span>!</p>
+        <button id="logout-button">Logout</button>
+    </header>
+
+    <section id="disaster-report">
+        <h2>Report a Disaster</h2>
+        <form id="disaster-report-form">
+            <label for="disaster-type">Disaster Type:</label>
+            <select id="disaster-type" required>
+                <option value="Earthquake">Earthquake</option>
+                <option value="Flood">Flood</option>
+                <option value="Cyclone">Cyclone</option>
+                <option value="Fire">Fire</option>
+                <option value="Other">Other</option>
+            </select>
+
+            <label for="request-type">Request Type:</label>
+            <select id="request-type" required>
+                <option value="Food">Food</option>
+                <option value="Shelter">Shelter</option>
+                <option value="Medical">Medical</option>
+            </select>
+
+            <label for="location">Location:</label>
+            <input type="text" id="location" placeholder="Enter location" required>
+
+            <label for="description">Description:</label>
+            <textarea id="description" placeholder="Provide a brief description of the disaster" rows="4" required></textarea>
+
+            <button type="submit">Submit Report</button>
+            <a href="tel:+918857065206" id="call-for-help">Call for Help</a>
+        </form>
+    </section>
+
+    <section id="map-section">
+        <h2>Disaster Map</h2>
+        <div id="map"></div>
+    </section>
+
+    <section id="help-requests">
+        <h2>Help Requests</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Request Type</th>
+                    <th>Disaster Type</th>
+                    <th>Location</th>
+                    <th>Requested At</th>
+                </tr>
+            </thead>
+            <tbody id="help-requests-table-body">
+                <!-- Help requests will be dynamically added here -->
+            </tbody>
+        </table>
+    </section>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="map.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const token = localStorage.getItem("token");
+            const userRole = localStorage.getItem("user_role");
+            const userName = localStorage.getItem("user_name");
+
+            // Redirect to login if not authenticated
+            if (!token || !userRole || !userName) {
+                window.location.href = "/index.html";
+            }
+
+            // Display user name
+            document.getElementById("user-name").textContent = userName;
+
+            // Logout functionality
+            document.getElementById("logout-button").addEventListener("click", function () {
+                localStorage.removeItem("token");
+                localStorage.removeItem("user_role");
+                localStorage.removeItem("user_name");
+                window.location.href = "/index.html";
+            });
+
+            // Handle disaster report submission
+            document.getElementById("disaster-report-form").addEventListener("submit", function (e) {
+                e.preventDefault();
+
+                const disasterType = document.getElementById("disaster-type").value;
+                const requestType = document.getElementById("request-type").value;
+                const location = document.getElementById("location").value;
+                const description = document.getElementById("description").value;
+
+                // Send report data to the backend
+                fetch("http://localhost:8080/report-disaster", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ disasterType, requestType, location, description })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message === "Disaster reported successfully!") {
+                        alert("Disaster reported successfully!");
+                        // Refresh the list of reported disasters and help requests
+                        fetchReportedDisasters();
+                        fetchHelpRequests();
+                    } else {
+                        alert("Error reporting disaster: " + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error reporting disaster:", error);
+                    alert("An error occurred while reporting the disaster.");
+                });
+            });
+
+            // Fetch and display reported disasters
+            function fetchReportedDisasters() {
+                fetch("http://localhost:8080/reported-disasters", {
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById("disaster-table-body");
+                    tableBody.innerHTML = ""; // Clear existing rows
+
+                    if (data.length === 0) {
+                        tableBody.innerHTML = `<tr><td colspan="4">No disasters reported yet.</td></tr>`;
+                    } else {
+                        data.forEach(disaster => {
+                            const row = document.createElement("tr");
+                            row.innerHTML = `
+                                <td>${disaster.disasterType}</td>
+                                <td>${disaster.location}</td>
+                                <td>${disaster.description}</td>
+                                <td>${new Date(disaster.reportedAt).toLocaleString()}</td>
+                            `;
+                            tableBody.appendChild(row);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching reported disasters:", error);
+                    const tableBody = document.getElementById("disaster-table-body");
+                    tableBody.innerHTML = `<tr><td colspan="4">Error loading data. Please try again.</td></tr>`;
+                });
+            }
+
+            // Fetch help requests
+            function fetchHelpRequests() {
+                fetch("http://localhost:8080/all-help-requests", {
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById("help-requests-table-body");
+                    tableBody.innerHTML = ""; // Clear existing rows
+
+                    if (data.length === 0) {
+                        tableBody.innerHTML = `<tr><td colspan="4">No help requests found.</td></tr>`;
+                    } else {
+                        data.forEach(request => {
+                            const row = document.createElement("tr");
+                            row.innerHTML = `
+                                <td>${request.request_type}</td>
+                                <td>${request.disaster_type}</td>
+                                <td>${request.location}</td>
+                                <td>${new Date(request.created_at).toLocaleString()}</td>
+                            `;
+                            tableBody.appendChild(row);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching help requests:", error);
+                    const tableBody = document.getElementById("help-requests-table-body");
+                    tableBody.innerHTML = `<tr><td colspan="4">Error loading data. Please try again.</td></tr>`;
+                });
+            }
+
+            // Fetch reported disasters and help requests when the page loads
+            fetchReportedDisasters();
+            fetchHelpRequests();
+        });
+    </script>
+</body>
+</html>

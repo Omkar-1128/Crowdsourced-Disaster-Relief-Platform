@@ -1,6 +1,6 @@
 let map = L.map('map').setView([20.5937, 78.9629], 5); // Centered on India
 
-// Load OpenStreetMap tiles
+// Load OpenStreetMap tiles with a darker theme
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors'
 }).addTo(map);
@@ -19,6 +19,10 @@ fetch("http://localhost:8080/all-help-requests")
 function addMarker(request) {
     if (request.lat && request.lng) {
         const marker = L.marker([request.lat, request.lng]).addTo(map);
-        marker.bindPopup(`<strong>${request.request_type}</strong><br>Location: ${request.location}`);
+        marker.bindPopup(`
+            <strong>${request.request_type}</strong><br>
+            <em>${request.disaster_type}</em><br>
+            Location: ${request.location}
+        `);
     }
 }
