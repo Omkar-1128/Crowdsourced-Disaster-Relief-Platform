@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // Toggle between login and registration forms
+    // Toggle between login and registration forms with animation
     const loginSection = document.getElementById("login");
     const registerSection = document.getElementById("register");
     const showRegisterLink = document.getElementById("show-register");
@@ -7,14 +7,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
     showRegisterLink.addEventListener("click", function (e) {
         e.preventDefault();
-        loginSection.style.display = "none";
-        registerSection.style.display = "block";
+        loginSection.style.animation = "fadeOut 0.3s forwards";
+        setTimeout(() => {
+            loginSection.style.display = "none";
+            registerSection.style.display = "block";
+            registerSection.style.animation = "fadeIn 0.3s forwards";
+        }, 300);
     });
 
     showLoginLink.addEventListener("click", function (e) {
         e.preventDefault();
-        registerSection.style.display = "none";
-        loginSection.style.display = "block";
+        registerSection.style.animation = "fadeOut 0.3s forwards";
+        setTimeout(() => {
+            registerSection.style.display = "none";
+            loginSection.style.display = "block";
+            loginSection.style.animation = "fadeIn 0.3s forwards";
+        }, 300);
     });
 
     // WebSocket connection for real-time alerts
@@ -34,17 +42,16 @@ document.addEventListener("DOMContentLoaded", function () {
         existing.forEach(el => el.remove());
         
         const status = document.createElement('div');
-        status.className = `status-message show ${isError ? 'error' : ''}`;
+        status.className = `status-message ${isError ? 'error' : ''}`;
         status.textContent = message;
         document.body.appendChild(status);
         
         setTimeout(() => {
-            status.classList.remove('show');
-            setTimeout(() => status.remove(), 300);
+            status.remove();
         }, 3000);
     }
 
-    // Handle Login
+    // Handle Login with better loading state
     document.getElementById("login-form").addEventListener("submit", function (e) {
         e.preventDefault();
 
@@ -54,7 +61,7 @@ document.addEventListener("DOMContentLoaded", function () {
         // Show loading state
         const submitBtn = e.target.querySelector('button[type="submit"]');
         const originalBtnText = submitBtn.textContent;
-        submitBtn.textContent = "Logging in...";
+        submitBtn.innerHTML = '<span class="spinner"></span> Logging in...';
         submitBtn.disabled = true;
 
         fetch("http://localhost:8080/login", {
@@ -85,7 +92,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // Handle Registration
+    // Handle Registration with loading state
     document.getElementById("register-form").addEventListener("submit", function (e) {
         e.preventDefault();
 
@@ -97,7 +104,7 @@ document.addEventListener("DOMContentLoaded", function () {
         // Show loading state
         const submitBtn = e.target.querySelector('button[type="submit"]');
         const originalBtnText = submitBtn.textContent;
-        submitBtn.textContent = "Registering...";
+        submitBtn.innerHTML = '<span class="spinner"></span> Registering...';
         submitBtn.disabled = true;
 
         fetch("http://localhost:8080/register", {
@@ -115,9 +122,13 @@ document.addEventListener("DOMContentLoaded", function () {
             showStatus(data.message);
             if (data.message === "User registered successfully!") {
                 setTimeout(() => {
-                    registerSection.style.display = "none";
-                    loginSection.style.display = "block";
-                    e.target.reset();
+                    registerSection.style.animation = "fadeOut 0.3s forwards";
+                    setTimeout(() => {
+                        registerSection.style.display = "none";
+                        loginSection.style.display = "block";
+                        loginSection.style.animation = "fadeIn 0.3s forwards";
+                        e.target.reset();
+                    }, 300);
                 }, 1000);
             }
         })
@@ -194,12 +205,14 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     };
 
-    // Public data loading
+    // Public data loading with loading states
     function fetchPublicHelpRequests() {
+        const tableBody = document.getElementById("public-help-requests-body");
+        tableBody.innerHTML = '<tr><td colspan="4"><div class="spinner"></div> Loading requests...</td></tr>';
+        
         fetch("http://localhost:8080/all-help-requests")
             .then(response => response.json())
             .then(data => {
-                const tableBody = document.getElementById("public-help-requests-body");
                 tableBody.innerHTML = "";
 
                 if (data.length === 0) {
@@ -219,19 +232,23 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .catch(error => {
                 console.error("Error loading help requests:", error);
-                document.getElementById("public-help-requests-body").innerHTML = 
+                tableBody.innerHTML = 
                     `<tr><td colspan="4">Error loading requests. Please refresh.</td></tr>`;
             });
     }
 
     function updateHelpCount() {
+        const countElement = document.getElementById("help-count");
+        countElement.innerHTML = '<span class="spinner small"></span>';
+        
         fetch("http://localhost:8080/help-count")
             .then(response => response.json())
             .then(data => {
-                document.getElementById("help-count").textContent = data.count;
+                countElement.textContent = data.count;
             })
             .catch(error => {
                 console.error("Error updating help count:", error);
+                countElement.textContent = "?";
             });
     }
 
@@ -251,3 +268,18 @@ document.addEventListener("DOMContentLoaded", function () {
         window.history.replaceState({}, "", window.location.pathname);
     }
 });
+
+// CSS animations for form toggling
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes fadeOut {
+        from { opacity: 1; transform: translateY(0); }
+        to { opacity: 0; transform: translateY(10px); }
+    }
+`;
+document.head.appendChild(style);
