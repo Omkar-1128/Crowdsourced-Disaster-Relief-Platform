@@ -10,8 +10,11 @@
 <body>
     <header>
         <h1>Crowdsourced Disaster Relief Platform</h1>
-        <p>Help Requests: <span id="help-count">Loading...</span></p>
+        <p>Help Requests: <span id="help-count">0</span></p>
     </header>
+
+    <!-- Alert Container -->
+    <div id="alert-container" class="alert-container"></div>
 
     <!-- Login Section -->
     <section id="login">
@@ -21,7 +24,7 @@
             <input type="password" id="login-password" placeholder="Password" required>
             <button type="submit">Login</button>
         </form>
-        <p>Don't have an account? <a href="#" id="show-register">Register here</a></p>
+        <p class="form-toggle">Don't have an account? <a href="#" id="show-register">Register here</a></p>
     </section>
 
     <!-- Registration Section -->
@@ -37,12 +40,35 @@
             </select>
             <button type="submit">Register</button>
         </form>
-        <p>Already have an account? <a href="#" id="show-login">Login here</a></p>
+        <p class="form-toggle">Already have an account? <a href="#" id="show-login">Login here</a></p>
     </section>
 
-    <!-- Existing sections for map, help requests, and alerts -->
+    <!-- Public Map Section -->
+    <section id="public-map">
+        <h2>Live Disaster Map</h2>
+        <div id="map"></div>
+    </section>
+
+    <!-- Public Help Requests -->
+    <section id="public-help-requests">
+        <h2>Recent Help Requests</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Request Type</th>
+                    <th>Disaster Type</th>
+                    <th>Location</th>
+                    <th>Requested At</th>
+                </tr>
+            </thead>
+            <tbody id="public-help-requests-body">
+                <!-- Help requests will be dynamically added here -->
+            </tbody>
+        </table>
+    </section>
+
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <script src="script.js"></script>
     <script src="map.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>

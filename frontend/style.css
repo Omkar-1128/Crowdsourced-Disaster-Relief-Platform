@@ -3,14 +3,14 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f0f4f8; /* Light blue-gray background */
+    background-color: #f0f4f8;
     color: #333;
     line-height: 1.6;
 }
 
 header {
-    background: #2c3e50; /* Dark blue-gray */
-    color: #ecf0f1; /* Light gray */
+    background: #2c3e50;
+    color: #ecf0f1;
     padding: 20px;
     text-align: center;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -25,7 +25,7 @@ header h1 {
 header p {
     margin: 5px 0 0;
     font-size: 16px;
-    color: #bdc3c7; /* Light gray */
+    color: #bdc3c7;
 }
 
 section {
@@ -38,20 +38,42 @@ section {
 }
 
 h2 {
-    color: #2c3e50; /* Dark blue-gray */
+    color: #2c3e50;
     font-size: 24px;
     margin-bottom: 15px;
-    border-bottom: 2px solid #3498db; /* Blue accent */
+    border-bottom: 2px solid #3498db;
     padding-bottom: 5px;
 }
 
+/* Form Elements */
+input, select, textarea {
+    padding: 10px;
+    width: 100%;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    background: #f9f9f9;
+    transition: border-color 0.3s ease;
+    margin-top: 5px;
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: #3498db;
+    outline: none;
+}
+
+textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
 /* Button Styling */
-button, #call-button {
+button {
     padding: 10px 20px;
     margin: 10px 0;
     border: none;
     border-radius: 5px;
-    background: #3498db; /* Blue */
+    background: #3498db;
     color: white;
     cursor: pointer;
     font-size: 16px;
@@ -61,39 +83,141 @@ button, #call-button {
     display: inline-block;
 }
 
-button:hover, #call-button:hover {
-    background: #2980b9; /* Darker blue */
+button:hover {
+    background: #2980b9;
 }
 
-#call-button {
-    background: #e74c3c; /* Red for emergency */
-    display: none; /* Initially hidden */
+button:disabled {
+    background: #95a5a6;
+    cursor: not-allowed;
 }
 
-#call-button:hover {
-    background: #c0392b; /* Darker red */
+.emergency-btn {
+    background: #e74c3c;
 }
 
-/* Form Styling */
-form {
+.emergency-btn:hover {
+    background: #c0392b;
+}
+
+/* Alert System Styles */
+.alert-container {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    width: 350px;
+    max-height: 80vh;
+    overflow-y: auto;
+    z-index: 1000;
     display: flex;
-    flex-direction: column;
-    gap: 15px;
+    flex-direction: column-reverse;
+    gap: 10px;
 }
 
-input, select {
-    padding: 10px;
-    width: 100%;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 16px;
-    background: #f9f9f9;
-    transition: border-color 0.3s ease;
+.alert-card {
+    background: white;
+    border-left: 5px solid #3498db;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    border-radius: 4px;
+    padding: 15px;
+    animation: slideIn 0.3s ease-out;
+    transition: all 0.3s ease;
 }
 
-input:focus, select:focus {
-    border-color: #3498db; /* Blue accent */
-    outline: none;
+.alert-card.emergency {
+    border-left-color: #e74c3c;
+    background: #fff6f6;
+}
+
+.alert-card.warning {
+    border-left-color: #f39c12;
+    background: #fffaf1;
+}
+
+.alert-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.alert-title {
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin: 0;
+    color: #2c3e50;
+}
+
+.alert-type {
+    font-size: 0.8rem;
+    padding: 2px 8px;
+    border-radius: 12px;
+    color: white;
+    background: #3498db;
+}
+
+.emergency-type {
+    background: #e74c3c;
+}
+
+.warning-type {
+    background: #f39c12;
+}
+
+.alert-location {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+    margin: 5px 0;
+}
+
+.alert-time {
+    color: #95a5a6;
+    font-size: 0.8rem;
+    text-align: right;
+}
+
+.alert-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.alert-button {
+    flex: 1;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+
+.view-button {
+    background: #3498db;
+    color: white;
+}
+
+.dismiss-button {
+    background: #ecf0f1;
+    color: #7f8c8d;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+/* Form Toggle Links */
+.form-toggle {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.form-toggle a {
+    color: #3498db;
+    text-decoration: none;
+}
+
+.form-toggle a:hover {
+    text-decoration: underline;
 }
 
 /* Map Styling */
@@ -105,7 +229,7 @@ input:focus, select:focus {
     margin-top: 10px;
 }
 
-/* Emergency Alerts Table */
+/* Table Styling */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -119,7 +243,7 @@ th, td {
 }
 
 th {
-    background-color: #2c3e50; /* Dark blue-gray */
+    background-color: #2c3e50;
     color: white;
     font-weight: 600;
 }
@@ -143,8 +267,15 @@ tr:hover {
         font-size: 20px;
     }
 
-    button, #call-button {
+    button {
         font-size: 14px;
         padding: 8px 16px;
+    }
+
+    .alert-container {
+        width: 90%;
+        left: 5%;
+        right: 5%;
+        top: 70px;
     }
 }

@@ -92,48 +92,6 @@ router.get('/user-details', (req, res) => {
     }
 });
 
-// Route to handle disaster reporting
-router.post('/report-disaster', async (req, res) => {
-    const { disasterType, requestType, location, description } = req.body;
-
-    if (!disasterType || !requestType || !location || !description) {
-        return res.status(400).json({ message: "All fields are required." });
-    }
-
-    // Insert into disaster_reports table
-    const reportQuery = "INSERT INTO disaster_reports (disasterType, location, description) VALUES (?, ?, ?)";
-    db.query(reportQuery, [disasterType, location, description], (err, result) => {
-        if (err) {
-            console.error("❌ Error reporting disaster:", err);
-            return res.status(500).json({ message: "Server error", error: err });
-        }
-        console.log("✅ Disaster reported successfully, ID:", result.insertId);
-
-        // Insert into help_requests table
-        const helpQuery = "INSERT INTO help_requests (user_role, request_type, disaster_type, location) VALUES (?, ?, ?, ?)";
-        db.query(helpQuery, ['Victim', requestType, disasterType, location], (err, result) => {
-            if (err) {
-                console.error("❌ Error inserting help request:", err);
-                return res.status(500).json({ message: "Server error", error: err });
-            }
-            console.log("✅ Help request stored in database, ID:", result.insertId);
-            res.json({ message: "Disaster reported successfully!" });
-        });
-    });
-});
-
-// Route to fetch reported disasters
-router.get('/reported-disasters', (req, res) => {
-    const query = "SELECT disasterType, location, description, reportedAt FROM disaster_reports ORDER BY reportedAt DESC";
-    db.query(query, (err, result) => {
-        if (err) {
-            console.error("❌ Error fetching reported disasters:", err);
-            return res.status(500).json({ message: "Server error", error: err });
-        }
-        res.json(result);
-    });
-});
-
 // Function to get lat/lng from OpenStreetMap Nominatim API
 async function getCoordinates(location) {
     try {
@@ -142,7 +100,7 @@ async function getCoordinates(location) {
         });
 
         if (response.data.length > 0) {
-            const { lat, lon } = response.data[0]; // lon = longitude
+            const { lat, lon } = response.data[0];
             return { lat: parseFloat(lat), lng: parseFloat(lon) };
         } else {
             console.warn(`⚠️ No coordinates found for ${location}`);
@@ -153,6 +111,59 @@ async function getCoordinates(location) {
         return { lat: null, lng: null };
     }
 }
+
+// Route to handle disaster reporting
+router.post('/report-disaster', async (req, res) => {
+    const { disasterType, requestType, location, description } = req.body;
+
+    if (!disasterType || !requestType || !location || !description) {
+        return res.status(400).json({ message: "All fields are required." });
+    }
+
+    try {
+        // Get coordinates from OpenStreetMap
+        const { lat, lng } = await getCoordinates(location);
+
+        // Insert into help_requests table with coordinates
+        const helpQuery = "INSERT INTO help_requests (user_role, request_type, disaster_type, location, lat, lng) VALUES (?, ?, ?, ?, ?, ?)";
+        db.query(helpQuery, ['Victim', requestType, disasterType, location, lat, lng], (err, result) => {
+            if (err) {
+                console.error("❌ Error inserting help request:", err);
+                return res.status(500).json({ message: "Database error", error: err });
+            }
+            
+            // Broadcast alert to all connected clients
+            const alertData = {
+                id: result.insertId,
+                disasterType,
+                location,
+                requestType,
+                timestamp: new Date().toISOString(),
+                coordinates: { lat, lng }
+            };
+            
+            req.app.locals.broadcastAlert(alertData);
+            
+            console.log("✅ Help request stored and alert broadcasted, ID:", result.insertId);
+            res.json({ message: "Disaster reported successfully!" });
+        });
+    } catch (error) {
+        console.error("❌ Error in report-disaster:", error);
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+});
+
+// Route to fetch reported disasters
+router.get('/reported-disasters', (req, res) => {
+    const query = "SELECT disasterType, location, description, reportedAt, lat, lng FROM disaster_reports ORDER BY reportedAt DESC";
+    db.query(query, (err, result) => {
+        if (err) {
+            console.error("❌ Error fetching reported disasters:", err);
+            return res.status(500).json({ message: "Server error", error: err });
+        }
+        res.json(result);
+    });
+});
 
 // Handle new help requests
 router.post('/request-help', async (req, res) => {
