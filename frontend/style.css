@@ -650,10 +650,7 @@ body.dashboard-page {
 }
 
 /* Map Containers */
-#map-container {
-    margin: 20px auto;
-    max-width: 1200px;
-}
+
 
 .dashboard-page #map-container {
     margin-top: 80px;
@@ -665,6 +662,18 @@ body.dashboard-page {
     border: 2px solid #ddd;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     z-index: 1;
+}
+
+#map-container {
+    margin-top: 80px;
+    padding: 20px;
+}
+
+#map {
+    height: 550px;
+    border-radius: 10px;
+    border: 3px solid #2c3e50;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.1);
 }
 
 /* Dashboard Map */
@@ -726,7 +735,7 @@ button {
 
 .doc-container {
         max-width: 1200px;
-        margin: 100px auto 20px; /* Added top margin */
+        margin: 90px auto 20px; /* Added top margin */
         padding: 20px;
         background: white;
         border-radius: 8px;
@@ -837,4 +846,92 @@ button {
     right: 0;
     z-index: 1000;
     height: 100px; /* Increased height for better spacing */
+}
+
+
+/* wheather styles */
+/* Weather Section Styles */
+.weather-section {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+    border: 1px solid #dfe6e9;
+}
+
+.weather-current {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    margin-bottom: 15px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.weather-icon-container {
+    display: flex;
+    align-items: center;
+    margin-right: 15px;
+}
+
+#weather-icon {
+    width: 50px;
+    height: 50px;
+}
+
+#weather-temp {
+    font-size: 24px;
+    font-weight: bold;
+    margin-left: 10px;
+    color: #2c3e50;
+}
+
+.weather-details p {
+    margin: 5px 0;
+    color: #7f8c8d;
+}
+
+#weather-condition {
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+/* Weather Alerts */
+.weather-alert {
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    background: white;
+    border-left: 4px solid #f39c12;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.weather-alert.severe {
+    border-left-color: #e74c3c;
+    background: #fff5f5;
+    animation: pulseWarning 1s infinite;
+}
+
+.weather-alert h4 {
+    margin: 0 0 8px 0;
+    color: #2c3e50;
+    font-size: 16px;
+}
+
+.weather-alert p {
+    margin: 5px 0;
+    color: #7f8c8d;
+    font-size: 14px;
+}
+
+.weather-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #95a5a6;
+    margin-top: 8px;
+}
+
+@keyframes pulseWarning {
+    0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.2); }
+    70% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
 }

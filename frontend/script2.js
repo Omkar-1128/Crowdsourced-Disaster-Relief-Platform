@@ -247,3 +247,100 @@ document.addEventListener("DOMContentLoaded", function () {
         window.history.replaceState({}, "", window.location.pathname);
     }
 });
+
+// wheather section
+// Add these functions to handle weather data
+async function loadCurrentWeather(lat, lng) {
+    try {
+        const response = await fetch(`http://localhost:8080/current-weather?lat=${lat}&lng=${lng}`);
+        const data = await response.json();
+        
+        document.getElementById('weather-icon').src = 
+            `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
+        document.getElementById('weather-temp').textContent = 
+            `${Math.round(data.main.temp)}°C`;
+        document.getElementById('weather-condition').textContent = 
+            `${data.weather[0].main} (${data.weather[0].description})`;
+        document.getElementById('weather-location').textContent = 
+            `${data.name}, ${data.sys?.country || ''}`;
+            
+        document.querySelector('.weather-loading').style.display = 'none';
+        document.querySelector('.weather-main').style.display = 'flex';
+    } catch (error) {
+        console.error("Error loading current weather:", error);
+        document.querySelector('.weather-loading').textContent = 
+            'Weather data unavailable';
+    }
+}
+
+
+// wheather reports section
+// Update the weather functions in script2.js
+async function loadCurrentWeather(lat, lng) {
+    try {
+        const response = await fetch(`http://localhost:8080/current-weather?lat=${lat}&lng=${lng}`);
+        if (!response.ok) {
+            throw new Error("Failed to fetch weather data");
+        }
+        
+        const data = await response.json();
+        
+        document.getElementById('weather-icon').src = 
+            data.weather[0].icon || 'https://openweathermap.org/img/wn/01d@2x.png';
+        document.getElementById('weather-temp').textContent = 
+            `${Math.round(data.main.temp)}°C`;
+        document.getElementById('weather-condition').textContent = 
+            `${data.weather[0].main}`;
+        document.getElementById('weather-location').textContent = 
+            `${data.name}, ${data.country || ''}`;
+            
+        document.querySelector('.weather-loading').style.display = 'none';
+        document.querySelector('.weather-main').style.display = 'flex';
+    } catch (error) {
+        console.error("Error loading current weather:", error);
+        document.querySelector('.weather-loading').textContent = 
+            'Weather data unavailable';
+    }
+}
+
+async function loadWeatherAlerts() {
+    try {
+        // Get map center or user location
+        let lat = 20.5937; // Default to India center
+        let lng = 78.9629;
+        
+        if (typeof map !== 'undefined') {
+            const center = map.getCenter();
+            lat = center.lat;
+            lng = center.lng;
+        }
+        
+        const response = await fetch(`http://localhost:8080/weather-alerts?lat=${lat}&lng=${lng}`);
+        if (!response.ok) {
+            throw new Error("Failed to fetch weather alerts");
+        }
+        
+        const alerts = await response.json();
+        const container = document.getElementById('weather-alerts');
+        
+        if (alerts.length === 0) {
+            container.innerHTML = '<div class="no-alerts">No active weather alerts in your area.</div>';
+            return;
+        }
+        
+        container.innerHTML = alerts.map(alert => `
+            <div class="weather-alert ${alert.severity === 'severe' ? 'severe' : ''}">
+                <h4>${alert.event}</h4>
+                <p>${alert.description}</p>
+                <div class="weather-meta">
+                    <span>From: ${new Date(alert.start * 1000).toLocaleString()}</span>
+                    <span>To: ${new Date(alert.end * 1000).toLocaleString()}</span>
+                </div>
+            </div>
+        `).join('');
+    } catch (error) {
+        console.error("Error loading weather alerts:", error);
+        document.getElementById('weather-alerts').innerHTML = 
+            '<div class="weather-error">Failed to load weather alerts. Please try again later.</div>';
+    }
+}

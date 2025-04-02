@@ -88,6 +88,14 @@ async function fetchAndDisplayMarkers() {
                             <small>${new Date(request.created_at).toLocaleString()}</small>
                         </div>
                     `);
+                SevereWeather: L.icon({
+                    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-yellow.png',
+                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41],
+                    popupAnchor: [1, -34],
+                    shadowSize: [41, 41]
+                }),
                 
                 markerCluster.addLayer(marker);
                 markers.push(marker);
@@ -124,3 +132,84 @@ window.viewOnMap = function(lat, lng) {
         }
     }
 };
+
+
+// wheather section
+
+// Add to your map.js
+let weatherLayer = L.layerGroup();
+
+function addWeatherToMap(map) {
+    weatherLayer.addTo(map);
+    
+    // Add weather control button
+    L.control({
+        position: 'topright',
+        html: '<button id="weather-toggle"><i class="fas fa-cloud-sun"></i> Weather</button>'
+    }).addTo(map);
+    
+    document.getElementById('weather-toggle').addEventListener('click', toggleWeatherLayer);
+}
+
+async function toggleWeatherLayer() {
+    if (map.hasLayer(weatherLayer)) {
+        weatherLayer.clearLayers();
+        return;
+    }
+    
+    const bounds = map.getBounds();
+    const center = bounds.getCenter();
+    
+    try {
+        const response = await fetch(`http://localhost:8080/current-weather?lat=${center.lat}&lng=${center.lng}`);
+        const weatherData = await response.json();
+        
+        // Add weather icon at center
+        const weatherIcon = L.icon({
+            iconUrl: `https://openweathermap.org/img/wn/${weatherData.weather[0].icon}@2x.png`,
+            iconSize: [50, 50],
+            iconAnchor: [25, 25]
+        });
+        
+        L.marker([center.lat, center.lng], {icon: weatherIcon})
+            .bindPopup(`
+                <strong>Current Weather</strong><br>
+                ${weatherData.weather[0].main} (${weatherData.weather[0].description})<br>
+                Temp: ${weatherData.main.temp}°C<br>
+                Humidity: ${weatherData.main.humidity}%<br>
+                Wind: ${weatherData.wind.speed} m/s
+            `)
+            .addTo(weatherLayer);
+            
+        // Check for severe weather
+        if (weatherData.weather[0].main.match(/rain|storm|snow|extreme/i)) {
+            showWeatherAlert(weatherData);
+        }
+    } catch (error) {
+        console.error("Error fetching weather:", error);
+    }
+}
+
+function showWeatherAlert(weatherData) {
+    const alertData = {
+        disasterType: "Severe Weather",
+        location: "Current Area",
+        requestType: "Take Precautions",
+        timestamp: new Date().toISOString(),
+        coordinates: map.getCenter(),
+        weatherInfo: weatherData
+    };
+    
+    // Use your existing alert system
+    if (typeof showAlert === 'function') {
+        showAlert(alertData);
+    }
+    
+    // Or broadcast via WebSocket
+    if (typeof socket !== 'undefined' && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({
+            type: 'ALERT',
+            data: alertData
+        }));
+    }
+}

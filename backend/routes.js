@@ -215,4 +215,67 @@ router.get('/help-count', (req, res) => {
     });
 });
 
+
+// wheather api
+const WEATHER_API_KEY = '79191ad6fd974e269cc134631250204'; // Apni API key daalein
+
+// Current weather endpoint
+router.get('/current-weather', async (req, res) => {
+    try {
+        const { lat, lng } = req.query;
+        
+        const response = await axios.get(
+            `https://api.weatherapi.com/v1/current.json?key=${WEATHER_API_KEY}&q=${lat},${lng}`
+        );
+
+        res.json({
+            name: response.data.location.name,
+            country: response.data.location.country,
+            temp: response.data.current.temp_c,
+            weather: response.data.current.condition,
+            main: {
+                temp: response.data.current.temp_c,
+                humidity: response.data.current.humidity
+            },
+            wind: {
+                speed: response.data.current.wind_kph
+            },
+            weather: [{
+                main: response.data.current.condition.text,
+                description: response.data.current.condition.text,
+                icon: response.data.current.condition.icon.replace('64x64', '128x128')
+            }]
+        });
+    } catch (error) {
+        console.error("Weather data error:", error);
+        res.status(500).json({ error: "Unable to fetch weather data" });
+    }
+});
+
+// Weather alerts endpoint
+router.get('/weather-alerts', async (req, res) => {
+    try {
+        const { lat, lng } = req.query;
+        
+        const response = await axios.get(
+            `https://api.weatherapi.com/v1/forecast.json?key=${WEATHER_API_KEY}&q=${lat},${lng}&days=2&alerts=yes`
+        );
+
+        if (response.data.alerts && response.data.alerts.alert) {
+            res.json(response.data.alerts.alert.map(alert => ({
+                event: alert.headline,
+                description: alert.desc,
+                severity: alert.severity,
+                start: alert.effective_epoch,
+                end: alert.expires_epoch
+            })));
+        } else {
+            res.json([]);
+        }
+    } catch (error) {
+        console.error("Weather alerts error:", error);
+        res.status(500).json({ error: "Unable to fetch weather alerts" });
+    }
+});
+
 module.exports = router;
