@@ -12,6 +12,9 @@
 <body class="dashboard-page">
     <header class="dashboard-header">
         <h1><i class="fas fa-house-damage"></i> Disaster Relief Platform</h1>
+        <a href="documentation.html" style="color: white; margin-right: 20px; text-decoration: none;">
+            <i class="fas fa-book"></i> Docs
+        </a>
         <div>
             <span class="user-greeting">Welcome, <span id="user-name"></span>! <span id="user-role-badge"></span></span>
             <button id="logout-button"><i class="fas fa-sign-out-alt"></i> Logout</button>
@@ -126,5 +129,8 @@
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
     <script src="map.js"></script>
     <script src="script2.js"></script>
+    <div class="docs-button" onclick="window.location.href='documentation.html'">
+        <i class="fas fa-book"></i>
+    </div>
 </body>
 </html>

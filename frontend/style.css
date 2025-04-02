@@ -720,3 +720,121 @@ button {
         height: 300px;
     }
 }
+
+ /* styling for documnetation */
+
+
+.doc-container {
+        max-width: 1200px;
+        margin: 100px auto 20px; /* Added top margin */
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        position: relative;
+        z-index: 1; /* Ensure content stays below nav */
+    }
+
+    .doc-sidebar {
+        position: sticky;
+        top: 100px; /* Account for header height */
+        float: left;
+        width: 250px;
+        padding-right: 20px;
+        height: calc(100vh - 120px); /* Full height minus header */
+        overflow-y: auto;
+    }
+
+    .doc-content {
+        margin-left: 270px;
+        padding: 20px;
+        border-left: 1px solid #eee;
+        min-height: calc(100vh - 160px); /* Proper height calculation */
+    }
+
+.doc-section {
+    margin-bottom: 40px;
+}
+
+.doc-section h2 {
+    color: #2c3e50;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 10px;
+}
+
+.doc-section h3 {
+    color: #3498db;
+    margin-top: 25px;
+}
+
+.nav-item {
+    padding: 8px 15px;
+    border-left: 3px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.nav-item:hover, .nav-item.active {
+    border-left: 3px solid #3498db;
+    background: #f8f9fa;
+}
+
+.api-endpoint {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+    margin: 15px 0;
+    font-family: monospace;
+}
+
+.method-get { color: #2ecc71; }
+.method-post { color: #3498db; }
+.method-put { color: #f39c12; }
+.method-delete { color: #e74c3c; }
+
+@media (max-width: 768px) {
+    .doc-sidebar {
+        float: none;
+        width: 100%;
+        padding-right: 0;
+    }
+    
+    .doc-content {
+        margin-left: 0;
+        border-left: none;
+        padding: 20px 0;
+    }
+}
+
+/* Documentation Button */
+.docs-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #3498db;
+    color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    cursor: pointer;
+    z-index: 100;
+    transition: all 0.3s;
+}
+
+.docs-button:hover {
+    background: #2980b9;
+    transform: scale(1.1);
+}
+
+.dashboard-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    height: 100px; /* Increased height for better spacing */
+}
